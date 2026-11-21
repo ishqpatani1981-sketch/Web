@@ -3,9 +3,13 @@
 A cinematic, premium e-commerce website for autograph pens, collectable pens and luxury
 writing instruments. Original store: [autographpens.co.uk](https://www.autographpens.co.uk/).
 
-**Status:** fully built and tested in demonstration mode. Real payments, email delivery,
-durable data and real products need the owner's information and credentials —
-see [`docs/OWNER_INFORMATION_REQUIRED.md`](docs/OWNER_INFORMATION_REQUIRED.md).
+**Status:** built and verified. The full end-to-end suite passes in development, in
+production mode, and against a real Postgres database with Supabase-style row-level
+security; an axe audit finds no WCAG 2.1 AA violations on 25 pages. Real payments, email
+delivery and real products need the owner's information and credentials — see
+[`docs/OWNER_INFORMATION_REQUIRED.md`](docs/OWNER_INFORMATION_REQUIRED.md). Deployment:
+the Vercel project `pens-outlet` is created and configured; it needs GitHub connected to
+Vercel once (see [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md#0-deploying-on-vercel)).
 
 ## What's inside
 
@@ -46,7 +50,8 @@ outside production; set `ADMIN_EMAIL` / `ADMIN_PASSWORD` for real deployments).
 |---|---|
 | `npm run dev` / `build` / `start` | Develop / build / serve |
 | `npm run typecheck`, `npm run lint` | Static checks |
-| `npm run test:e2e` | Playwright journey tests against a running dev server (needs Playwright's Chromium) |
+| `npm run test:e2e` | Playwright journey tests against a running server (needs Playwright's Chromium) |
+| `npm run test:a11y` | axe-core WCAG 2.1 AA audit of 25 storefront and admin pages |
 | `npm run db:generate` | Create a migration after editing `lib/db/schema.ts` |
 | `npm run db:migrate` | Apply migrations (+ Supabase RLS policies) |
 | `npm run db:seed` / `db:seed:demo` | Create the admin / also load demo catalogue |

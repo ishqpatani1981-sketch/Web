@@ -8,6 +8,26 @@ browser, so they must never contain secrets. A template lives in `.env.example`.
 The admin's **Settings → Integration status** panel shows what is configured and what is
 still awaiting configuration.
 
+## 0. Deploying on Vercel
+
+A Vercel project called **`pens-outlet`** (team *ishq*, region London `lhr1` recommended) has
+already been created, with these variables set for Production and Preview:
+`DEMO_MODE=true`, `ALLOW_INDEXING=false`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (sensitive),
+`CRON_SECRET` (sensitive) and `NEXT_PUBLIC_SITE_URL`.
+
+Vercel cannot fetch the code yet because no GitHub account is connected to Vercel. One-time fix:
+
+1. Vercel → Account Settings → Authentication → **Connect GitHub**, and allow the Vercel
+   GitHub app access to `ishqpatani1981-sketch/Web`.
+2. Project `pens-outlet` → Settings → Git → **Connect Git Repository** → `ishqpatani1981-sketch/Web`.
+3. Settings → Git → Production Branch: `claude/laughing-knuth-h0p3o1` (or merge it into `main`).
+4. Settings → Functions → Function Region: **London (lhr1)**.
+5. Deployments → **Redeploy**. Every later push deploys automatically.
+
+Preview deployments are protected by Vercel Authentication by default (only your team can
+view them). Until `DATABASE_URL` is set, each server instance uses its own temporary demo
+database, so admin changes on the preview may not persist.
+
 ## Zero-configuration demo mode
 
 With no variables set, the site runs end-to-end on an embedded Postgres (PGlite) database
@@ -24,8 +44,11 @@ recorded in **Admin → Email outbox** instead of being delivered.
 2. **Database URL**: Project Settings → Database → Connection string → *Transaction pooler*
    (port 6543). Set `DATABASE_URL` (include the password).
 3. Run migrations + security policies: `DATABASE_URL=… npm run db:migrate`.
-   This also applies `supabase/policies.sql` (row-level security on every table and the
-   public `product-images` storage bucket).
+   This also applies `supabase/policies.sql`: row-level security is **enabled (not forced)**
+   on every table, so the server's owner role keeps access while Supabase's public
+   `anon`/`authenticated` API can only read active products, collections, live promotions
+   and presentation settings. It also creates the public `product-images` storage bucket
+   (if the role lacks storage rights, create that bucket in the dashboard).
 4. Create the first admin: `ADMIN_EMAIL=… ADMIN_PASSWORD=… DATABASE_URL=… npm run db:seed`.
    (Optionally `npm run db:seed:demo` to load the demonstration catalogue.)
 5. **Storage**: Project Settings → API → set `NEXT_PUBLIC_SUPABASE_URL` and
