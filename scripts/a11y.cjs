@@ -17,7 +17,6 @@ async function audit(page, url) {
   await page.waitForTimeout(1200);
   await page.addScriptTag({ content: axeSource });
   return page.evaluate(async () => {
-    // eslint-disable-next-line no-undef
     const r = await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] }, resultTypes: ['violations'] });
     return r.violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodes: v.nodes.length, sample: v.nodes.slice(0, 2).map((n) => n.target.join(' ')) }));
   });
