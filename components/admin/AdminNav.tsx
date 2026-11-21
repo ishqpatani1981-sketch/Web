@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { BarChart3, Package, FolderTree, ShoppingCart, Users, MessageSquare, Megaphone, Mail, LayoutTemplate, Settings, Inbox, Menu, X, ExternalLink, type LucideIcon } from 'lucide-react';
+import { BarChart3, Package, FolderTree, ShoppingCart, Users, MessageSquare, Megaphone, Mail, LayoutTemplate, Settings, Inbox, Menu, X, ExternalLink, Rocket, type LucideIcon } from 'lucide-react';
 import { Logo } from '@/components/brand/Logo';
 import { cn } from '@/lib/utils';
 
 export type NavItem = { href: string; label: string; icon: string; badge?: number };
 
-const ICONS: Record<string, LucideIcon> = { BarChart3, Package, FolderTree, ShoppingCart, Users, MessageSquare, Megaphone, Mail, LayoutTemplate, Settings, Inbox };
+const ICONS: Record<string, LucideIcon> = { BarChart3, Package, FolderTree, ShoppingCart, Users, MessageSquare, Megaphone, Mail, LayoutTemplate, Settings, Inbox, Rocket };
 
 export function AdminNav({ items, user, logout }: { items: NavItem[]; user: { name: string | null; email: string; role: string }; logout: () => Promise<void> }) {
   const pathname = usePathname();

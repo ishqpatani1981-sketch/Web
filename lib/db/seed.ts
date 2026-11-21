@@ -92,12 +92,15 @@ async function ensureAdmin(db: DB) {
     .where(eq(schema.users.email, email))
     .limit(1);
   if (existing.length) return;
-  await db.insert(schema.users).values({
-    email,
-    name: 'Store administrator',
-    passwordHash: await hashPassword(password),
-    role: 'admin',
-  });
+  await db
+    .insert(schema.users)
+    .values({
+      email,
+      name: 'Store administrator',
+      passwordHash: await hashPassword(password),
+      role: 'admin',
+    })
+    .onConflictDoNothing({ target: schema.users.email });
   if (email === DEV_ADMIN_EMAIL) {
     console.warn(
       `[pens-outlet] Created local development admin ${DEV_ADMIN_EMAIL} — set ADMIN_EMAIL and ADMIN_PASSWORD for real deployments.`,

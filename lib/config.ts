@@ -76,21 +76,45 @@ export function marketingConfig() {
 }
 
 export function storageConfig() {
-  const url = env('NEXT_PUBLIC_SUPABASE_URL');
+  const url = env('NEXT_PUBLIC_SUPABASE_URL') ?? env('SUPABASE_URL');
   const serviceRoleKey = env('SUPABASE_SERVICE_ROLE_KEY');
   const bucket = env('SUPABASE_STORAGE_BUCKET') ?? 'product-images';
   return { url, serviceRoleKey, bucket, provider: (url && serviceRoleKey ? 'supabase' : 'local') as 'supabase' | 'local' };
 }
 
+/** Query parameters some providers add that the postgres driver would send to the server as (invalid) settings. */
+const DROP_PARAMS = ['supa', 'pgbouncer', 'connection_limit', 'pool_timeout', 'schema', 'pgbouncer_mode'];
+
+export function normalizeDatabaseUrl(raw: string) {
+  try {
+    const u = new URL(raw);
+    for (const k of DROP_PARAMS) u.searchParams.delete(k);
+    return u.toString();
+  } catch {
+    return raw;
+  }
+}
+
+/**
+ * The Postgres connection string. Accepts DATABASE_URL, or the variables Vercel's Neon and
+ * Supabase integrations inject (POSTGRES_URL / POSTGRES_PRISMA_URL), so connecting a database
+ * from the Vercel dashboard needs no manual copying.
+ */
+export function databaseUrl() {
+  const raw = env('DATABASE_URL') ?? env('POSTGRES_URL') ?? env('POSTGRES_PRISMA_URL');
+  return raw ? normalizeDatabaseUrl(raw) : undefined;
+}
+
 export function databaseConfig() {
-  const url = env('DATABASE_URL');
+  const url = databaseUrl();
   let host: string | undefined;
   try {
     host = url ? new URL(url).hostname : undefined;
   } catch {
     host = undefined;
   }
-  return { configured: !!url, host, kind: url ? (host?.includes('supabase') ? 'supabase' : 'postgres') : 'embedded-demo' };
+  const kind = !url ? 'embedded-demo' : host?.includes('supabase') ? 'supabase' : host?.includes('neon') ? 'neon' : 'postgres';
+  return { configured: !!url, host, kind };
 }
 
 export function cronSecret() {
@@ -109,8 +133,8 @@ export function integrationStatus() {
       name: 'Database',
       ok: database.configured,
       detail: database.configured
-        ? `Connected to ${database.kind === 'supabase' ? 'Supabase Postgres' : 'Postgres'} (${database.host ?? 'host hidden'})`
-        : 'Using the embedded demo database. Set DATABASE_URL (Supabase) before launch — demo data is not durable on serverless hosting.',
+        ? `Connected to ${database.kind === 'supabase' ? 'Supabase Postgres' : database.kind === 'neon' ? 'Neon Postgres' : 'Postgres'} (${database.host ?? 'host hidden'})`
+        : 'Using the embedded demo database, which is wiped whenever the server restarts. Connect a Postgres database (Vercel → Storage → Neon or Supabase) to make data permanent.',
     },
     {
       id: 'payments',

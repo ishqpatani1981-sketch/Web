@@ -10,7 +10,7 @@ const BASE = process.argv[2] || 'http://localhost:3000';
 const ADMIN = { email: process.env.E2E_ADMIN_EMAIL || 'admin@pensoutlet.local', password: process.env.E2E_ADMIN_PASSWORD || 'PensOutlet-admin-2026' };
 const axeSource = fs.readFileSync(path.join(__dirname, '..', 'node_modules', 'axe-core', 'axe.min.js'), 'utf8');
 const PUBLIC = ['/', '/shop', '/collections', '/collections/autograph-pens', '/products/titanium-signature-fountain-pen', '/basket', '/checkout', '/wishlist', '/track-order', '/contact', '/faq', '/about', '/privacy', '/account/login', '/account/register', '/nope'];
-const ADMIN_PAGES = ['/admin', '/admin/products', '/admin/products/new', '/admin/orders', '/admin/content', '/admin/settings', '/admin/marketing', '/admin/newsletter'];
+const ADMIN_PAGES = ['/admin', '/admin/products', '/admin/products/new', '/admin/orders', '/admin/content', '/admin/settings', '/admin/launch', '/admin/marketing', '/admin/newsletter'];
 
 async function audit(page, url) {
   await page.goto(BASE + url, { waitUntil: 'networkidle' });

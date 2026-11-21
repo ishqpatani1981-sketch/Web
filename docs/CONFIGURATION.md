@@ -41,9 +41,13 @@ recorded in **Admin → Email outbox** instead of being delivered.
 ## 1. Supabase — database & image storage
 
 1. Create a project at supabase.com (region: London `eu-west-2`).
-2. **Database URL**: Project Settings → Database → Connection string → *Transaction pooler*
-   (port 6543). Set `DATABASE_URL` (include the password).
-3. Run migrations + security policies: `DATABASE_URL=… npm run db:migrate`.
+2. **Database URL**: the simplest way is Vercel → Storage → Supabase (or Neon) → Connect, which
+   sets the variables for you (`DATABASE_URL` or `POSTGRES_URL` are both read). Manually:
+   Project Settings → Database → Connection string → *Transaction pooler* (port 6543), set
+   as `DATABASE_URL` (include the password).
+3. **Nothing else to run**: on first start the site migrates itself, applies the security
+   policies, creates the admin from `ADMIN_EMAIL`/`ADMIN_PASSWORD` and (in demo mode) loads the
+   demo catalogue once. To do it by hand instead: `DATABASE_URL=… npm run db:migrate`.
    This also applies `supabase/policies.sql`: row-level security is **enabled (not forced)**
    on every table, so the server's owner role keeps access while Supabase's public
    `anon`/`authenticated` API can only read active products, collections, live promotions

@@ -3,7 +3,7 @@ import { and, count, desc, eq, gte, inArray, isNotNull, lte, sql } from 'drizzle
 import { AlertTriangle } from 'lucide-react';
 import { getDb } from '@/lib/db';
 import { orders, products, subscribers, users } from '@/lib/db/schema';
-import { requirePermission } from '@/lib/auth/session';
+import { can, requirePermission } from '@/lib/auth/session';
 import { integrationStatus } from '@/lib/config';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { nowMs } from '@/lib/time';
@@ -67,6 +67,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
         <div className="mb-8 rounded-[22px] border border-warning/20 bg-warning/[0.05] p-5">
           <p className="flex items-center gap-2 text-sm text-warning">
             <AlertTriangle className="h-4 w-4" /> Before launch
+            {can(user.role, 'settings:manage') && (
+              <Link href="/admin/launch" className="ml-auto text-xs text-champagne underline">
+                Open the launch checklist
+              </Link>
+            )}
           </p>
           <ul className="mt-3 space-y-1.5 text-sm text-silver">
             {placeholderCount.n > 0 && (

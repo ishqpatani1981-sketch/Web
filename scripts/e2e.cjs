@@ -192,6 +192,13 @@ function assert(cond, msg) {
     }
   });
 
+  await step('Admin: launch checklist reports what is left', async () => {
+    await page.goto(BASE + '/admin/launch', { waitUntil: 'networkidle' });
+    const text = await page.locator('main').innerText();
+    assert(/of \d+ required steps done/.test(await page.locator('[data-testid="launch-progress"]').innerText()), 'progress not shown');
+    for (const t of ['Replace the demonstration products', 'Permanent database', 'Stripe payments connected', 'Demo mode is off']) assert(text.includes(t), `missing item: ${t}`);
+  });
+
   await step('Admin: create a product, upload a photo, then delete it', async () => {
     await page.goto(BASE + '/admin/products/new', { waitUntil: 'networkidle' });
     const name = `E2E Test Pen ${Date.now()}`;

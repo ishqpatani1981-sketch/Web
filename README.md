@@ -60,6 +60,7 @@ outside production; set `ADMIN_EMAIL` / `ADMIN_PASSWORD` for real deployments).
 
 ## Documentation
 
+- [`docs/GO_LIVE.md`](docs/GO_LIVE.md) — the short runbook from preview to live shop (also tracked live in **Admin → Launch checklist**)
 - [`docs/OWNER_INFORMATION_REQUIRED.md`](docs/OWNER_INFORMATION_REQUIRED.md) — everything to collect from the owner
 - [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md) — Supabase, Stripe, email, marketing, analytics, launch switches
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — stack decisions, security, data model

@@ -3,13 +3,14 @@
  *   DATABASE_URL=postgres://... npm run db:migrate
  * Without DATABASE_URL this migrates the local embedded demo database in .data/pglite.
  */
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import postgres from 'postgres';
-import { runMigrations } from '../lib/db';
+import { bootstrapPostgres, runMigrations } from '../lib/db/migrate';
+import { databaseUrl } from '../lib/config';
 
 async function main() {
-  const url = process.env.DATABASE_URL;
+  const url = databaseUrl();
   if (!url) {
     const { PGlite } = await import('@electric-sql/pglite');
     mkdirSync(join(process.cwd(), '.data'), { recursive: true });
@@ -19,16 +20,9 @@ async function main() {
     await client.close();
     return;
   }
-  const sql = postgres(url, { prepare: false, max: 1, onnotice: () => {} });
-  await runMigrations((s) => sql.unsafe(s).then(() => undefined), (s) => sql.unsafe(s) as Promise<unknown[]>);
-  console.log('Migrations applied.');
-  const [{ exists }] = await sql`select exists(select 1 from pg_roles where rolname = 'anon') as exists`;
-  if (exists) {
-    await sql.unsafe(readFileSync(join(process.cwd(), 'supabase', 'policies.sql'), 'utf8')).simple();
-    console.log('Supabase row level security policies applied.');
-  } else {
-    console.log('Supabase roles not detected — skipped supabase/policies.sql.');
-  }
+  const sql = postgres(url, { prepare: false, max: 1, onnotice: () => {}, ssl: /localhost|127\.0\.0\.1/.test(url) ? false : 'require' });
+  await bootstrapPostgres(sql, { seedDemo: false });
+  console.log('Migrations and Supabase row level security policies applied (the app also does this automatically on first start).');
   await sql.end();
 }
 

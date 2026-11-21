@@ -23,6 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: '/admin/newsletter', label: 'Newsletter', icon: 'Mail', perm: 'marketing:manage' },
     { href: '/admin/content', label: 'Website content', icon: 'LayoutTemplate', perm: 'content:manage' },
     { href: '/admin/emails', label: 'Email outbox', icon: 'Inbox', perm: 'settings:manage' },
+    { href: '/admin/launch', label: 'Launch checklist', icon: 'Rocket', perm: 'settings:manage' },
     { href: '/admin/settings', label: 'Settings', icon: 'Settings', perm: 'settings:manage' },
   ];
   const items = all.filter((i) => can(user.role, i.perm)).map(({ perm: _p, ...rest }) => rest);

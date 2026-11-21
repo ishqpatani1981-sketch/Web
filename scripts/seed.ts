@@ -9,11 +9,13 @@ import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../lib/db/schema';
 import { seedIfEmpty } from '../lib/db/seed';
-import { runMigrations, type DB } from '../lib/db';
+import { runMigrations } from '../lib/db/migrate';
+import type { DB } from '../lib/db';
+import { databaseUrl } from '../lib/config';
 
 async function main() {
   const demo = process.argv.includes('--demo');
-  const url = process.env.DATABASE_URL;
+  const url = databaseUrl();
   if (!url) {
     const { PGlite } = await import('@electric-sql/pglite');
     const { drizzle: drizzlePglite } = await import('drizzle-orm/pglite');
@@ -25,7 +27,7 @@ async function main() {
     await client.close();
     return;
   }
-  const sql = postgres(url, { prepare: false, max: 1, onnotice: () => {} });
+  const sql = postgres(url, { prepare: false, max: 1, onnotice: () => {}, ssl: /localhost|127\.0\.0\.1/.test(url) ? false : 'require' });
   await seedIfEmpty(drizzle(sql, { schema }), { demo });
   console.log(demo ? 'Seeded admin + demonstration catalogue.' : 'Seeded admin user.');
   await sql.end();

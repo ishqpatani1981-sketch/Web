@@ -3,22 +3,25 @@ import path from 'node:path';
 import { drizzle as drizzlePostgres } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
-import { MIGRATIONS } from './migrations.generated';
+import { databaseUrl } from '../config';
+import { bootstrapPostgres, runMigrations } from './migrate';
 
 export type DB = ReturnType<typeof drizzlePostgres<typeof schema>>;
 
 type GlobalDb = { __pensOutletDb?: Promise<DB> };
 const g = globalThis as unknown as GlobalDb;
 
-/** True when running against the embedded demo database instead of Supabase/Postgres. */
-export const usingEmbeddedDatabase = !process.env.DATABASE_URL;
+/** True when running against the embedded demo database instead of Supabase/Neon/Postgres. */
+export const usingEmbeddedDatabase = !databaseUrl();
 
 /**
  * Returns the shared Drizzle client.
  *
- * - DATABASE_URL set  → Postgres (Supabase in production). Run `npm run db:migrate` to migrate.
- * - DATABASE_URL unset → PGlite, an embedded Postgres persisted to .data/pglite. It migrates
- *   and seeds itself with clearly-labelled demonstration content on first start.
+ * - A Postgres URL (DATABASE_URL, or POSTGRES_URL from Vercel's Neon/Supabase integration):
+ *   connects and, unless AUTO_MIGRATE=false, prepares the database on first use.
+ * - No URL: PGlite, an embedded Postgres persisted to .data/pglite (/tmp on Vercel). It migrates
+ *   and seeds itself with clearly-labelled demonstration content. Wiped when the server restarts
+ *   on serverless hosting, so it is for previews only.
  */
 export function getDb(): Promise<DB> {
   if (!g.__pensOutletDb) {
@@ -31,20 +34,22 @@ export function getDb(): Promise<DB> {
 }
 
 async function init(): Promise<DB> {
-  const url = process.env.DATABASE_URL;
+  const url = databaseUrl();
   if (url) {
+    const parsed = new URL(url);
+    const local = ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname);
     const client = postgres(url, {
-      // Supabase's transaction pooler (port 6543) does not support prepared statements.
+      // Transaction poolers (Supabase :6543, Neon -pooler) do not support prepared statements.
       prepare: false,
       max: Number(process.env.DATABASE_POOL_MAX ?? 5),
       idle_timeout: 20,
       onnotice: () => {},
+      ssl: local || parsed.searchParams.get('sslmode') === 'disable' ? false : 'require',
     });
-    const db = drizzlePostgres(client, { schema });
-    if (process.env.AUTO_MIGRATE === 'true') {
-      await runMigrations((sql) => client.unsafe(sql).then(() => undefined), (sql) => client.unsafe(sql) as Promise<unknown[]>);
+    if (process.env.AUTO_MIGRATE !== 'false') {
+      await bootstrapPostgres(client, { seedDemo: process.env.DEMO_MODE === 'true' });
     }
-    return db;
+    return drizzlePostgres(client, { schema });
   }
 
   const { PGlite } = await import('@electric-sql/pglite');
@@ -65,18 +70,4 @@ async function init(): Promise<DB> {
   return db;
 }
 
-/** Minimal, idempotent migration runner shared by PGlite and Postgres. */
-export async function runMigrations(
-  exec: (sql: string) => Promise<void>,
-  query: (sql: string) => Promise<unknown[]>,
-) {
-  await exec(
-    `create table if not exists __app_migrations (name text primary key, applied_at timestamptz not null default now())`,
-  );
-  const applied = new Set(((await query(`select name from __app_migrations`)) as { name: string }[]).map((r) => r.name));
-  for (const migration of MIGRATIONS) {
-    if (applied.has(migration.name)) continue;
-    for (const statement of migration.statements) await exec(statement);
-    await exec(`insert into __app_migrations (name) values ('${migration.name.replace(/'/g, "''")}')`);
-  }
-}
+export { runMigrations };
