@@ -1,11 +1,12 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 -- PENS OUTLET — Supabase Row Level Security policies
 --
--- The Next.js server talks to Postgres through DATABASE_URL using a privileged
--- role (it is the trusted backend and validates every write with zod + role
--- checks). These policies lock down Supabase's auto-generated REST/GraphQL
--- APIs so that the public `anon` key, and the `authenticated` role, can never
--- read customer data or write anything.
+-- The Next.js server talks to Postgres through DATABASE_URL as the role that
+-- owns the tables (it is the trusted backend and validates every write with
+-- zod + role checks). RLS is ENABLED but deliberately NOT forced, so the owner
+-- keeps access while Supabase's auto-generated REST/GraphQL APIs (the public
+-- `anon` key and the `authenticated` role) can never read customer data or
+-- write anything.
 --
 -- `npm run db:migrate` applies this file automatically when it detects the
 -- Supabase `anon` role. You can also paste it into the Supabase SQL editor.
@@ -21,7 +22,8 @@ begin
     'contact_messages','site_settings','rate_limits','audit_log','__app_migrations'
   ] loop
     execute format('alter table if exists public.%I enable row level security', t);
-    execute format('alter table if exists public.%I force row level security', t);
+    -- NOT forced: forcing would also block the owning role the server connects as.
+    execute format('alter table if exists public.%I no force row level security', t);
   end loop;
 end $$;
 
@@ -50,10 +52,16 @@ create policy "public read presentation settings" on public.site_settings
 -- for anon/authenticated, which means: no access through the public API at all.
 
 -- Storage: product images bucket (public read, writes only via the service role).
-insert into storage.buckets (id, name, public)
-values ('product-images', 'product-images', true)
-on conflict (id) do nothing;
-
-drop policy if exists "public read product images" on storage.objects;
-create policy "public read product images" on storage.objects
-  for select to anon, authenticated using (bucket_id = 'product-images');
+-- Wrapped so a project where this role cannot manage storage still migrates;
+-- in that case create a public bucket named "product-images" in the dashboard.
+do $$
+begin
+  insert into storage.buckets (id, name, public)
+  values ('product-images', 'product-images', true)
+  on conflict (id) do nothing;
+  drop policy if exists "public read product images" on storage.objects;
+  create policy "public read product images" on storage.objects
+    for select to anon, authenticated using (bucket_id = 'product-images');
+exception when others then
+  raise notice 'Storage bucket/policy not configured automatically (%). Create the "product-images" public bucket in the Supabase dashboard.', sqlerrm;
+end $$;

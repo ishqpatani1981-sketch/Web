@@ -31,7 +31,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ id: s
       <div className="grid gap-6 xl:grid-cols-[1.1fr_1fr] [&>*]:min-w-0">
         <div className="space-y-6">
           <Card title="Content">
-            <CampaignForm key={c.updatedAt.toISOString()} campaign={c} types={CAMPAIGN_TYPES.map((t) => ({ ...t }))} />
+            <CampaignForm campaign={c} types={CAMPAIGN_TYPES.map((t) => ({ ...t }))} />
           </Card>
           <Card title="Send">
             <CampaignActions campaign={c} subscribed={subscribed} />

@@ -1,13 +1,29 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { saveCategory } from '@/actions/admin/products';
 import type { Category } from '@/lib/db/schema';
 import { AdminForm, Field, SubmitButton, Toggle } from './ui';
 
 export function CategoryForm({ category }: { category?: Category }) {
   const c = category;
+  const fileInput = useRef<HTMLInputElement>(null);
+  const serverImage = c?.imageUrl ?? '';
+  const [imageUrl, setImageUrl] = useState(serverImage);
+  const [prevServerImage, setPrevServerImage] = useState(serverImage);
+  // Pick up a newly uploaded image after the save refreshes the page, without remounting.
+  if (prevServerImage !== serverImage) {
+    setPrevServerImage(serverImage);
+    setImageUrl(serverImage);
+  }
   return (
-    <AdminForm action={saveCategory} className="grid gap-4 sm:grid-cols-2">
+    <AdminForm
+      action={saveCategory}
+      className="grid gap-4 sm:grid-cols-2"
+      onSuccess={() => {
+        if (fileInput.current) fileInput.current.value = '';
+      }}
+    >
       {(pending) => (
         <>
           <input type="hidden" name="id" value={c?.id ?? ''} />
@@ -22,13 +38,13 @@ export function CategoryForm({ category }: { category?: Category }) {
             <option value="featured">Automatic — featured</option>
           </Field>
           <Field label="Sort order" name="sortOrder" type="number" min={0} defaultValue={c?.sortOrder ?? 0} />
-          <Field label="Image URL" name="imageUrl" defaultValue={c?.imageUrl ?? ''} hint="Or upload a new image below" />
+          <Field label="Image URL" name="imageUrl" value={imageUrl} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setImageUrl(e.target.value)} hint="Or upload a new image below" />
           <Field label="Image description (alt text)" name="imageAlt" defaultValue={c?.imageAlt ?? ''} />
           <div className="sm:col-span-2">
             <label className="label" htmlFor="cat-image">
               Upload image
             </label>
-            <input id="cat-image" type="file" name="image" accept="image/jpeg,image/png,image/webp,image/avif" className="text-sm text-silver file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-paper" />
+            <input ref={fileInput} id="cat-image" type="file" name="image" accept="image/jpeg,image/png,image/webp,image/avif" className="text-sm text-silver file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-paper" />
           </div>
           <Field label="Meta title" name="seoTitle" defaultValue={c?.seoTitle ?? ''} />
           <Field label="Meta description" name="seoDescription" defaultValue={c?.seoDescription ?? ''} />

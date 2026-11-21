@@ -19,7 +19,7 @@ async function main() {
     await client.close();
     return;
   }
-  const sql = postgres(url, { prepare: false, max: 1 });
+  const sql = postgres(url, { prepare: false, max: 1, onnotice: () => {} });
   await runMigrations((s) => sql.unsafe(s).then(() => undefined), (s) => sql.unsafe(s) as Promise<unknown[]>);
   console.log('Migrations applied.');
   const [{ exists }] = await sql`select exists(select 1 from pg_roles where rolname = 'anon') as exists`;

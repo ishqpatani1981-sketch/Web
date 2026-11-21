@@ -40,7 +40,7 @@ export default async function EditProductPage({ params, searchParams }: { params
         }
       />
       {sp.created && <p className="mb-6 rounded-xl border border-success/25 bg-success/10 p-3 text-sm text-success">Product created.</p>}
-      <ProductForm key={product.updatedAt.toISOString()} product={product} categories={cats} />
+      <ProductForm product={product} categories={cats} />
     </>
   );
 }

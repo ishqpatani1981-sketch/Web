@@ -15,7 +15,8 @@
     "db:seed:demo": "tsx scripts/seed.ts --demo",
     "db:reset-local": "rm -rf .data/pglite && echo 'Local demo database removed; it will be recreated and seeded on next start.'",
     "test:e2e": "node scripts/e2e.cjs",
-    "render:imagery": "node scripts/render-imagery.cjs"
+    "render:imagery": "node scripts/render-imagery.cjs",
+    "test:a11y": "node scripts/a11y.cjs"
   },
   "engines": {
     "node": ">=20.9"
@@ -47,6 +48,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/three": "^0.187.0",
+    "axe-core": "^4.10.3",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.6",

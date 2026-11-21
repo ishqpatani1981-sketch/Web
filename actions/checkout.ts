@@ -138,11 +138,13 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
     await subscribe({ email: data.email, name: data.name, source: 'checkout', consentText: settings.newsletter.consentText, ip }).catch((e) => console.error('[checkout] subscribe failed', e));
   }
 
-  const successUrl = `${siteUrl()}/checkout/success?order=${encodeURIComponent(order.orderNumber)}&token=${encodeURIComponent(order.accessToken)}`;
+  const successPath = `/checkout/success?order=${encodeURIComponent(order.orderNumber)}&token=${encodeURIComponent(order.accessToken)}`;
+  const successUrl = `${siteUrl()}${successPath}`;
 
   if (demo) {
     await markOrderPaid(order.id, { demo: true });
-    redirect(successUrl);
+    // Relative redirect keeps demo checkout working even if NEXT_PUBLIC_SITE_URL is mis-set.
+    redirect(successPath);
   }
 
   let sessionUrl: string | null = null;

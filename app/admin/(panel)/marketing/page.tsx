@@ -34,13 +34,11 @@ export default async function MarketingPage() {
                       {p.isPlaceholder && ' · placeholder'}
                     </span>
                   </span>
-                  <span className="flex items-center gap-2">
-                    <StatusPill status={live ? 'active' : 'draft'} />
-                    <ConfirmButton action={deletePromotion} fields={{ id: p.id }} label="Delete" variant="danger" confirm={`Delete “${p.title}”?`} />
-                  </span>
+                  <StatusPill status={live ? 'active' : 'draft'} />
                 </summary>
-                <div className="mt-4">
+                <div className="mt-4 space-y-4">
                   <PromotionForm promo={p} />
+                  <ConfirmButton action={deletePromotion} fields={{ id: p.id }} label="Delete promotion" variant="danger" confirm={`Delete “${p.title}”?`} />
                 </div>
               </details>
             );

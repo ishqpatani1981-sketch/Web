@@ -25,7 +25,7 @@ async function main() {
     await client.close();
     return;
   }
-  const sql = postgres(url, { prepare: false, max: 1 });
+  const sql = postgres(url, { prepare: false, max: 1, onnotice: () => {} });
   await seedIfEmpty(drizzle(sql, { schema }), { demo });
   console.log(demo ? 'Seeded admin + demonstration catalogue.' : 'Seeded admin user.');
   await sql.end();

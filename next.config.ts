@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
   // PGlite (embedded Postgres used for the zero-config demo database) ships WASM + data files
   // that must not be bundled.
   serverExternalPackages: ['@electric-sql/pglite'],
+  // PGlite loads its WASM + data files at runtime; make sure serverless traces include them
+  // (only matters for demo deployments without DATABASE_URL).
+  outputFileTracingIncludes: {
+    '/**': ['./node_modules/@electric-sql/pglite/dist/*.{js,cjs,wasm,data}', './node_modules/@electric-sql/pglite/dist/fs/**/*.{js,cjs}', './node_modules/@electric-sql/pglite/package.json'],
+  },
   poweredByHeader: false,
   devIndicators: false,
   experimental: {

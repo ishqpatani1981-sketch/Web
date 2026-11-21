@@ -192,16 +192,24 @@ function assert(cond, msg) {
     }
   });
 
-  await step('Admin: create, edit stock and delete a product', async () => {
+  await step('Admin: create a product, upload a photo, then delete it', async () => {
     await page.goto(BASE + '/admin/products/new', { waitUntil: 'networkidle' });
     const name = `E2E Test Pen ${Date.now()}`;
     await page.fill('#af-name', name);
     await page.fill('#af-price', '12.50');
     await page.fill('#af-stockQuantity', '4');
     await Promise.all([page.waitForURL(/created=1/, { timeout: 20000 }), page.getByRole('button', { name: 'Create product' }).click()]);
+    // Upload a real PNG photograph (1×1 pixel) and save.
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+    await page.setInputFiles('input[name="newImages"]', { name: 'pen-photo.png', mimeType: 'image/png', buffer: png });
+    await page.getByRole('button', { name: 'Save changes' }).click();
+    await page.waitForSelector('text=Product saved.', { timeout: 20000 });
+    await page.waitForSelector('input[aria-label="Alt text for image 1"]', { timeout: 20000 });
     const slugUrl = await page.getByRole('link', { name: /View on site/ }).getAttribute('href');
     await page.goto(BASE + slugUrl, { waitUntil: 'networkidle' });
     assert((await page.locator('[data-testid="pdp-price"]').innerText()).includes('£12.50'), 'new product price not shown');
+    const photo = await page.locator('main img').first().getAttribute('src');
+    assert(photo && /media|supabase/.test(decodeURIComponent(photo)), `uploaded photo not shown on product page (src=${photo})`);
     await page.goBack({ waitUntil: 'networkidle' });
     page.once('dialog', (d) => d.accept());
     await Promise.all([page.waitForURL(/deleted=1/), page.getByRole('button', { name: 'Delete' }).click()]);

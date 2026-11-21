@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowDown, ArrowUp, Plus, Trash2, Upload } from 'lucide-react';
 import { saveProduct } from '@/actions/admin/products';
@@ -15,6 +15,15 @@ type Cat = { id: string; name: string; rule: string };
 export function ProductForm({ product, categories }: { product?: Product; categories: Cat[] }) {
   const router = useRouter();
   const [images, setImages] = useState(product?.images ?? []);
+  const fileInput = useRef<HTMLInputElement>(null);
+  // After a save, router.refresh() brings back the stored photos (including new uploads).
+  // Sync them in without remounting, so the "Product saved." message stays visible.
+  const serverImages = JSON.stringify(product?.images ?? []);
+  const [prevServerImages, setPrevServerImages] = useState(serverImages);
+  if (prevServerImages !== serverImages) {
+    setPrevServerImages(serverImages);
+    setImages(product?.images ?? []);
+  }
   const [specs, setSpecs] = useState(product?.specifications ?? []);
   const [previews, setPreviews] = useState<string[]>([]);
   const p = product;
@@ -30,7 +39,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
   return (
     <AdminForm action={saveProduct} className="grid gap-6 xl:grid-cols-[1.6fr_1fr] [&>*]:min-w-0" onSuccess={() => {
         setPreviews([]);
-        // Reload server data (e.g. newly uploaded photos); the page keys this form by updatedAt.
+        if (fileInput.current) fileInput.current.value = '';
         router.refresh();
       }}>
       {(pending) => (
@@ -85,6 +94,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
                 <Upload className="h-5 w-5 text-champagne" />
                 Upload photographs
                 <input
+                  ref={fileInput}
                   type="file"
                   name="newImages"
                   multiple

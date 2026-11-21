@@ -38,6 +38,7 @@ async function init(): Promise<DB> {
       prepare: false,
       max: Number(process.env.DATABASE_POOL_MAX ?? 5),
       idle_timeout: 20,
+      onnotice: () => {},
     });
     const db = drizzlePostgres(client, { schema });
     if (process.env.AUTO_MIGRATE === 'true') {

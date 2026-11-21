@@ -24,7 +24,7 @@ export default async function EditCategory({ params }: { params: Promise<{ id: s
       </Link>
       <PageTitle title={c.name} action={<ConfirmButton action={deleteCategory} fields={{ id }} label="Delete" variant="danger" confirm={`Delete the “${c.name}” collection? Its products are kept but unassigned.`} />} />
       <Card>
-        <CategoryForm key={c.updatedAt.toISOString()} category={c} />
+        <CategoryForm category={c} />
       </Card>
     </>
   );

@@ -60,7 +60,7 @@ export function SalesChart({ data, title, subtitle }: { data: DayPoint[]; title:
         <span className="text-sm text-paper tabular-nums">{formatPrice(total)} total</span>
       </figcaption>
       <div ref={wrap} className="relative">
-        <svg width={width} height={height} role="img" aria-label={`${title}. ${formatPrice(total)} across ${data.length} days. Data table below.`} onMouseLeave={() => setHover(null)}>
+        <svg width={width} height={height} role="group" aria-label={`${title}. ${formatPrice(total)} across ${data.length} days. Data table below.`} onMouseLeave={() => setHover(null)}>
           {ticks.map((t) => (
             <g key={t}>
               <line x1={pad.left} x2={width - pad.right} y1={y(t)} y2={y(t)} stroke={GRID} strokeWidth={1} />

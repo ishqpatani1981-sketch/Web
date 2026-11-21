@@ -43,7 +43,11 @@ export function PenArt({ colour, name, penType, className, angle = -38, stage = 
   const T = `url(#${id('trim')})`;
 
   return (
-    <svg viewBox="0 0 400 500" className={className} role="img" aria-label={title ?? `${name ?? 'Pen'} — placeholder illustration`}>
+    <svg
+      viewBox="0 0 400 500"
+      className={className}
+      {...(title === '' ? { 'aria-hidden': true } : { role: 'img', 'aria-label': title ?? `${name ?? 'Pen'} — placeholder illustration` })}
+    >
       <defs>
         {grad('body', body, /carbon|graphite|matte/i.test(`${colour} ${name}`))}
         {grad('trim', trim)}

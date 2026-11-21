@@ -41,8 +41,9 @@ export function SplitReveal({ text, className, wordClassName, delay = 0, immedia
       className={cn('inline', className)}
       initial={reduce ? false : 'hidden'}
       {...(immediate ? { animate: 'show' } : { whileInView: 'show', viewport: { once: true, margin: '0px 0px -10% 0px' } })}
-      aria-label={text}
     >
+      {/* Screen readers get the sentence once; the animated words are decorative. */}
+      <span className="sr-only">{text}</span>
       {words.map((w, i) => (
         <span key={i} className="inline-block overflow-hidden pb-[0.08em] align-bottom" aria-hidden="true">
           <motion.span className={cn('inline-block', wordClassName)} variants={wordVariants} custom={{ i, d: delay }}>
