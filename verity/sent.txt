@@ -1,0 +1,13 @@
+# domain | email | business | date sent
+spudarchitects.co.uk | jon@spudarchitects.co.uk | Spud Architects Ltd | 2026-11-25
+legaharchitecture.co.uk | info@legaharchitecture.co.uk | Legah Architecture Ltd | 2026-11-25
+smfinancialpln.co.uk | info@smfinancialpln.co.uk | S&M Financial Planning Ltd | 2026-11-25
+kpkaccountants.co.uk | krishna@kpkaccountants.co.uk | KPK Accountants Ltd | 2026-11-25
+mjgaccountants.com | info@mjgaccountants.com | MJG Accountants Ltd | 2026-11-25
+plansdesigned.co.uk | enquiries@plansdesigned.co.uk | Plansdesigned Ltd | 2026-11-25
+studiocbd.co.uk | info@studiocbd.co.uk | Campbell Building Design Ltd | 2026-11-25
+neiltax.london | neil@neiltax.london | Neils Ltd | 2026-11-25
+fitzeclinics.co.uk | info@fitzeclinics.co.uk | Fitze Clinics Ltd | 2026-11-25
+finexaccountancy.com | Info@finexaccountancy.com | Finex Accountancy Services Ltd | 2026-11-25
+dusek.co.uk | info@dusek.co.uk | Dusek Design Associates Ltd | 2026-11-25
+shivaayplanning.com | info@shivaayplanning.com | Shivaay Planning Services Ltd | 2026-11-26

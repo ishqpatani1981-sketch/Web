@@ -1,0 +1,1 @@
+# domains or emails never to contact again (opt-outs, bounces)
